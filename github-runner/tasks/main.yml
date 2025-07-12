@@ -14,7 +14,7 @@
     remote_src: yes
     mode: '0755'
 
-- name: Create runner user
+- name: Create github-runner user
   user:
     name: github-runner
     shell: /bin/bash
@@ -42,7 +42,7 @@
     chdir: /opt/github-runner
   shell: |
     ./config.sh \
-      --url https://github.com/{{ github_repo }} \
+      --url https://github.com/wisecode-org \
       --token {{ github_runner_token }} \
       --work /home/github-runner/_work \
       --name snoopy \
