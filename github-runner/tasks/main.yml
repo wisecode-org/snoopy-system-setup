@@ -70,7 +70,7 @@
   args:
     chdir: /opt/github-runner
   shell: |
-    ./svc.sh install
+    ./svc.sh install github-runner
   when: not runner_config.stat.exists
 
 - name: Ensure github runner service is running
