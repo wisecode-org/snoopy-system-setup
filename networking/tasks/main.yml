@@ -198,9 +198,3 @@
     name: frr
     state: restarted
     enabled: yes
-
-- name: Ensure networking service is restarted
-  systemd:
-    name: networking
-    state: restarted
-    enable: yes
