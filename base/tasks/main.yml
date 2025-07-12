@@ -78,6 +78,7 @@
     - unzip
     - 7zip
     - ssl-cert
+    - mtools
     - unrar
     - tree
     - gnupg
