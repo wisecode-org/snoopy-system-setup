@@ -1,28 +1,34 @@
 ---
 # tasks file for netdata
 
-- name: Ensure keyring directory exists
-  file:
-    path: /etc/apt/keyrings
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
 - name: Download Netdata GPG key
   get_url:
     url: https://repository.netdata.cloud/netdatabot.gpg.key
-    dest: /etc/apt/keyrings/netdata.gpg
+    dest: /usr/share/keyrings/netdata-archive-keyring.gpg
     mode: '0644'
 
 - name: Add Netdata APT repository
   copy:
-    dest: /etc/apt/sources.list.d/netdata.list
+    dest: /etc/apt/sources.list.d/netdata-edge.sources
     owner: root
     group: root
     mode: '0644'
     content: |
-      deb [signed-by=/etc/apt/keyrings/netdata.gpg] http://repository.netdata.cloud/repos/stable/debian/ {{ ansible_distribution_release }} main
+      X-Repolib-Name: Netdata edge repository
+      Types: deb
+      URIs: http://repository.netdata.cloud/repos/edge/debian/
+      Suites: bookworm/
+      Signed-By: /usr/share/keyrings/netdata-archive-keyring.gpg
+      By-Hash: Yes
+      Enabled: Yes
+
+      X-Repolib-Name: Netdata repository configuration repository
+      Types: deb
+      URIs: http://repository.netdata.cloud/repos/repoconfig/debian/
+      Suites: bookworm/
+      Signed-By: /usr/share/keyrings/netdata-archive-keyring.gpg
+      By-Hash: Yes
+      Enabled: Yes
 
 - name: Update apt cache
   apt:
@@ -33,8 +39,23 @@
     name: netdata
     state: present
 
+- name: Generate Netdata configuration file
+  args:
+    creates: /etc/netdata/netdata.conf
+  register: netdata_config
+  shell: |
+    netdatacli dumpconfig > /etc/netdata/netdata.conf
+
+- name: Set Netdata to listen only on localhost
+  lineinfile:
+    path: /etc/netdata/netdata.conf
+    regexp: '^#? bind to =.*'
+    line: '  bind to = 127.0.0.1'
+    insertafter: '^\[web\]'
+    state: present
+
 - name: Ensure netdata service is enabled and running
   systemd:
     name: netdata
     enabled: yes
-    state: started
+    state: restarted

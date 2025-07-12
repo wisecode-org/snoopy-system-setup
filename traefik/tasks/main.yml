@@ -8,6 +8,12 @@
     home: /var/lib/traefik
     create_home: yes
 
+- name: Ensure traefik user is in ssl-cert group
+  user:
+    name: traefik
+    groups: ssl-cert
+    append: yes
+
 - name: Download traefik binary
   get_url:
     url: https://github.com/traefik/traefik/releases/download/v3.4.4/traefik_v3.4.4_linux_amd64.tar.gz
@@ -51,23 +57,34 @@
     group: traefik
     mode: '0755'
 
-- name: Deploy traefik configuration
-  copy:
-    dest: /etc/traefik/traefik.yml
+- name: Deploy Traefik configuration files
+  become: yes
+  ansible.builtin.copy:
+    dest: "/etc/traefik/{{ item.name }}"
     owner: traefik
     group: traefik
     mode: '0644'
+    content: "{{ item.content }}"
+  loop:
+  - name: traefik.yml
     content: |
       entryPoints:
-        web:
-          address: ":80"
-        dashboard:
-          address: "192.168.0.2:8080"
+        traefik-dashboard-http:
+          address: "192.168.0.2:80"
+        traefik-dashboard-https:
+          address: "192.168.0.2:443"
+        netdata-http:
+          address: "192.168.0.3:80"
+        netdata-https:
+          address: "192.168.0.3:443"
 
       api:
         dashboard: true
 
       providers:
+        file:
+          directory: /etc/traefik/
+          watch: true
         docker:
           endpoint: "unix:///var/run/docker.sock"
           exposedByDefault: false
@@ -75,6 +92,68 @@
       log:
         filePath: "/var/log/traefik/traefik.log"
         level: "INFO"
+
+  - name: routers.yml
+    content: |
+      tls:
+        certificates:
+          - certFile: /etc/letsencrypt/live/wisecode.org/fullchain.pem
+            keyFile: /etc/letsencrypt/live/wisecode.org/privkey.pem
+
+      http:
+        routers:
+          traefik-dashboard-http:
+            rule: "Host(`traefik.snoopy.wisecode.org`)"
+            entryPoints:
+              - traefik-dashboard-http
+            middlewares:
+              - redirect-to-https
+            service: api@internal
+
+          traefik-dashboard-https:
+            rule: "Host(`traefik.snoopy.wisecode.org`)"
+            entryPoints:
+              - traefik-dashboard-https
+            service: api@internal
+            tls: {}
+
+          netdata-http:
+            rule: "Host(`netdata.snoopy.wisecode.org`)"
+            entryPoints:
+              - netdata-http
+            middlewares:
+              - redirect-to-https
+            service: netdata
+
+          netdata-https:
+            rule: "Host(`netdata.snoopy.wisecode.org`)"
+            entryPoints:
+              - netdata-https
+            service: netdata
+            tls: {}
+
+  - name: services.yml
+    content: |
+      http:
+        services:
+          netdata:
+            loadBalancer:
+              servers:
+                - url: "http://127.0.0.1:19999"
+
+  - name: middlewares.yml
+    content: |
+      http:
+        middlewares:
+          redirect-to-https:
+            redirectScheme:
+              scheme: https
+              permanent: true
+
+- name: Allow traefik to bind to ports <1024 without root
+  community.general.capabilities:
+    path: /usr/local/bin/traefik
+    capability: cap_net_bind_service=+ep
 
 - name: Create traefik systemd service
   copy:

@@ -104,6 +104,7 @@
     - bridge-utils
     - screen
     - tmux
+    - megatools
     state: present
     update_cache: true
 

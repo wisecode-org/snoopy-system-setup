@@ -32,3 +32,46 @@
     mode: '0644'
     content: |
       30 14 * * * certbot certonly --agree-tos --key-type rsa --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini -d wisecode.org,*.wisecode.org,*.snoopy.wisecode.org -n
+
+- name: Ensure ssl-cert group permission deploy hook for certbot
+  copy:
+    dest: /etc/letsencrypt/renewal-hooks/deploy/ssl-cert-permission.sh
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/bin/bash
+
+      # This script fixes file and directory permissions under /etc/letsencrypt
+      # to allow the 'ssl-cert' group to read TLS certificates after renewal.
+      # It is designed to be used as a Certbot deploy-hook.
+      #
+      # Actions:
+      # - Changes group ownership of all files and directories to 'ssl-cert'
+      # - Sets directories to 750 (rwxr-x---)
+      # - Sets files to 640 (rw-r-----)
+
+      set -euo pipefail
+
+      LE_DIR="/etc/letsencrypt"
+
+      echo "[INFO] Adjusting permissions for Traefik on renewed certificates..."
+
+      # Change group and permissions recursively
+      chgrp -R ssl-cert "$LE_DIR"
+      find "$LE_DIR" -type d -exec chmod 750 {} \;
+      find "$LE_DIR" -type f -exec chmod 640 {} \;
+
+      echo "[INFO] Permissions adjusted."
+
+      exit 0
+
+- name: Run certbot to issue ssl certificate
+  shell: |
+    certbot certonly \
+      --agree-tos \
+      --key-type rsa \
+      --dns-cloudflare \
+      --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
+      -d wisecode.org,*.wisecode.org,*.snoopy.wisecode.org \
+      -n
