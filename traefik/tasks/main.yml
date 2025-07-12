@@ -18,7 +18,6 @@
   file:
     path: /tmp/traefik
     state: directory
-    mode: '0755'
 
 - name: Extract traefik tarball into /tmp
   unarchive:
