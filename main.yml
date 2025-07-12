@@ -11,6 +11,6 @@
   - docker
   - qemu
   - gns3
-  #- certbot
+  - certbot
   #- traefik
   #- netdata
