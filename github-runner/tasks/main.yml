@@ -1,0 +1,64 @@
+---
+# tasks file for github-runner
+
+- name: wget github runner
+  get_url:
+    url: "https://github.com/actions/runner/releases/download/v2.326.0/actions-runner-linux-x64-2.326.0.tar.gz"
+    dest: /tmp/actions-runner-linux-x64-2.326.0.tar.gz
+    mode: '0644'
+
+- name: Extract github runner
+  unarchive:
+    src: /tmp/actions-runner-linux-x64-2.326.0.tar.gz
+    dest: /opt/github-runner
+    remote_src: yes
+    mode: '0755'
+
+- name: Create runner user
+  user:
+    name: github-runner
+    shell: /bin/bash
+    home: /home/github-runner
+    create_home: yes
+
+- name: Allow github-runner passwordless sudo
+  copy:
+    dest: /etc/sudoers.d/github-runner
+    owner: root
+    group: root
+    mode: '0440'
+    content: |
+      github-runner ALL=(ALL) NOPASSWD:ALL
+
+- name: Remove existing runner configuration if present
+  file:
+    path: /opt/github-runner/.runner
+    state: absent
+
+- name: Configure github runner
+  become: true
+  become_user: github-runner
+  args:
+    chdir: /opt/github-runner
+  shell: |
+    ./config.sh \
+      --url https://github.com/{{ github_repo }} \
+      --token {{ github_runner_token }} \
+      --work /home/github-runner/_work \
+      --name snoopy \
+      --labels bare-metal \
+      --unattended --replace
+
+- name: Install github runner service
+  become: true
+  become_user: github-runner
+  args:
+    chdir: /opt/github-runner
+  shell: |
+    ./svc.sh install
+
+- name: Ensure github runner service is running
+  systemd:
+    name: actions.runner.wisecode-org.snoopy
+    state: started
+    enabled: yes
