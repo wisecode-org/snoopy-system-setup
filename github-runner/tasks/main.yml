@@ -66,12 +66,30 @@
       --unattended --replace
   when: not runner_config.stat.exists
 
-- name: Install github runner service
-  args:
-    chdir: /opt/github-runner
-  shell: |
-    ./svc.sh install github-runner
-  when: not runner_config.stat.exists
+- name: Create GitHub Actions Runner systemd service
+  copy:
+    dest: /etc/systemd/system/actions.runner.wisecode-org.snoopy.service
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=GitHub Actions Runner (wisecode-org.snoopy)
+      After=network.target
+
+      [Service]
+      ExecStart=/opt/github-runner/runsvc.sh
+      User=github-runner
+      WorkingDirectory=/opt/github-runner
+      KillMode=process
+      KillSignal=SIGTERM
+      TimeoutStopSec=5min
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Reload systemd daemon
+  command: systemctl daemon-reload
 
 - name: Ensure github runner service is running
   systemd:
