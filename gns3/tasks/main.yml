@@ -1,0 +1,174 @@
+---
+# tasks file for gns3
+
+- name: Install dynamips
+  apt:
+    name: dynamips
+    state: present
+    update_cache: true
+
+- name: Clone vpcs repository at tag v0.6.1
+  git:
+    repo: https://github.com/GNS3/vpcs.git
+    dest: /usr/src/vpcs
+    version: v0.6.1
+    force: yes
+
+- name: Compile and install vpcs
+  args:
+    creates: /usr/local/bin/vpcs
+  shell: |
+    cd /usr/src/vpcs/src
+    ./mk.sh
+    cp vpcs /usr/local/bin/vpcs
+
+- name: Clone ubridge repository
+  git:
+    repo: https://github.com/GNS3/ubridge.git
+    dest: /usr/src/ubridge
+    force: yes
+
+- name: Compile and install ubridge
+  args:
+    creates: /usr/local/bin/ubridge
+  shell: |
+    cd /usr/src/ubridge
+    make
+    chmod +x ubridge
+    cp -f ubridge /usr/local/bin/ubridge
+
+- name: Clone iniparser repository
+  git:
+    repo: https://github.com/ndevilla/iniparser.git
+    dest: /usr/src/iniparser
+    force: yes
+
+- name: Compile and install iniparser
+  args:
+    creates: /opt/iniparser/libiniparser.a
+  shell: |
+    cd /usr/src/iniparser
+    mkdir build
+    cd build
+    cmake ..
+    make all
+    make install
+
+- name: Clone iouyap repository
+  git:
+    repo: https://github.com/GNS3/iouyap.git
+    dest: /usr/src/iouyap
+    force: yes
+
+- name: Fix struct sizecheck definition from iouyap.h
+  lineinfile:
+    path: /usr/src/iouyap/iouyap.h
+    regexp: '^struct sockaddr_un sizecheck;'
+    state: absent
+
+- name: Fix UNIX_PATH_MAX macro in iouyap.h
+  replace:
+    path: /usr/src/iouyap/iouyap.h
+    regexp: '^#define UNIX_PATH_MAX.*'
+    replace: '#define UNIX_PATH_MAX sizeof(((struct sockaddr_un *)0)->sun_path)'
+
+- name: Compile and install iouyap
+  args:
+    creates: /usr/local/bin/iouyap
+  shell: |
+    cd /usr/src/iouyap/
+    make
+    cp iouyap /usr/local/bin/iouyap
+
+- name: Ensure gns3 user exists and is in required groups
+  user:
+    name: gns3
+    shell: /bin/bash
+    home: /home/gns3
+    create_home: yes
+    groups: gns3,libvirt,kvm,wireshark,docker
+    append: yes
+    state: present
+
+- name: Add strikercode and ansible to gns3 group
+  user:
+    name: "{{ item }}"
+    groups: gns3
+    append: yes
+  loop:
+  - strikercode
+  - ansible
+
+- name: Create gns3server configuration
+  copy:
+    dest: /home/gns3/gns3server.conf
+    owner: gns3
+    group: gns3
+    mode: '0644'
+    content: |
+      [Server]
+      host = 0.0.0.0
+      port = 3080
+      images_path = /home/gns3/GNS3/images
+      projects_path = /home/gns3/GNS3/projects
+      report_errors = True
+      console_start_port_range = 2000
+      console_end_port_range = 5000
+      udp_start_port_range = 10000
+      udp_end_port_range = 20000
+      ubridge_path = /usr/local/bin/ubridge
+
+      [VPCS]
+      vpcs_path = /usr/local/bin/vpcs
+
+      [Dynamips]
+      allocate_aux_console_ports = False
+      mmap_support = True
+      dynamips_path = /usr/bin/dynamips
+      sparse_memory_support = True
+      ghost_ios_support = True
+
+      [IOU]
+      iouyap_path = /usr/local/bin/iouyap
+      iourc_path = /home/gns3/.iourc
+      license_check = True
+
+- name: Create .iourc license file for GNS3 IOU
+  copy:
+    dest: /home/gns3/.iourc
+    owner: gns3
+    group: gns3
+    mode: '0600'
+    content: |
+      [license]
+      snoopy = 2c57de9e3c14b601
+
+- name: Create gns3server systemd service
+  copy:
+    dest: /etc/systemd/system/gns3server.service
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=GNS3 Server
+      After=network.target
+
+      [Service]
+      ExecStart=/usr/local/bin/gns3server -A --config /home/gns3/gns3server.conf
+      Restart=always
+      User=gns3
+      Group=gns3
+      WorkingDirectory=/home/gns3
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Reload systemd daemon after adding gns3server service
+  command: systemctl daemon-reload
+
+- name: Ensure gns3server service is enabled and running
+  systemd:
+    name: gns3server
+    enabled: yes
+    state: started

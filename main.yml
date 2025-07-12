@@ -10,7 +10,7 @@
   - github-runner
   - docker
   - qemu
-  #- gns3
+  - gns3
   #- certbot
   #- traefik
   #- netdata
