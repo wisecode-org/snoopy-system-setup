@@ -1,0 +1,32 @@
+---
+# tasks file for qemu
+
+- name: Install QEMU, KVM and libvirt packages
+  apt:
+    name:
+    - qemu-kvm
+    - libvirt-daemon-system
+    - libvirt-clients
+    - virt-manager
+    - bridge-utils
+    - cpu-checker
+    state: present
+    update_cache: true
+
+- name: Enable and start libvirtd service
+  systemd:
+    name: libvirtd
+    enabled: yes
+    state: started
+
+- name: Add ansible user to libvirt group
+  user:
+    name: ansible
+    groups: libvirt
+    append: yes
+
+- name: Add strikercode user to libvirt group
+  user:
+    name: strikercode
+    groups: libvirt
+    append: yes

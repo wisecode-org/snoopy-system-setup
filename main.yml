@@ -9,7 +9,7 @@
   - networking
   - github-runner
   - docker
-  #- qemu
+  - qemu
   #- gns3
   #- certbot
   #- traefik

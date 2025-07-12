@@ -12,7 +12,7 @@
   copy:
     dest: /etc/apt/sources.list.d/docker.list
     content: |
-      deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
+      deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable
 
 - name: Update APT cache
   apt:
@@ -37,5 +37,11 @@
 - name: Add ansible user to docker group
   user:
     name: ansible
+    groups: docker
+    append: yes
+
+- name: Add strikercode user to docker group
+  user:
+    name: strikercode
     groups: docker
     append: yes
