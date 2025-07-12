@@ -179,7 +179,7 @@
 
 - name: Ensure ubridge has required network capabilities
   community.general.capabilities:
-    path: /usr/bin/ubridge
+    path: /usr/local/bin/ubridge
     capability: cap_net_bind_service=+ep
 
 - name: Ensure gns3server service is enabled and running
