@@ -13,4 +13,4 @@
   - gns3
   - certbot
   - traefik
-  #- netdata
+  - netdata

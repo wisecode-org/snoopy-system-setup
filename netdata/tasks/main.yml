@@ -1,0 +1,40 @@
+---
+# tasks file for netdata
+
+- name: Ensure keyring directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Download Netdata GPG key
+  get_url:
+    url: https://repository.netdata.cloud/netdatabot.gpg.key
+    dest: /etc/apt/keyrings/netdata.gpg
+    mode: '0644'
+
+- name: Add Netdata APT repository
+  copy:
+    dest: /etc/apt/sources.list.d/netdata.list
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      deb [signed-by=/etc/apt/keyrings/netdata.gpg] http://repository.netdata.cloud/repos/stable/debian/ {{ ansible_distribution_release }} main
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install netdata package
+  apt:
+    name: netdata
+    state: present
+
+- name: Ensure netdata service is enabled and running
+  systemd:
+    name: netdata
+    enabled: yes
+    state: started
