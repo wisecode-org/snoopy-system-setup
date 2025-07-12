@@ -151,3 +151,8 @@
   - { regexp: '^#?Banner', line: 'Banner no' }
   - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
   - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+
+- name: Ensure SSH daemon is restarted
+  service:
+    name: ssh
+    state: restarted
