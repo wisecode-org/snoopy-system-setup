@@ -1,0 +1,199 @@
+---
+# tasks file for networking
+
+- name: Persist sysctl settings
+  copy:
+    dest: /etc/sysctl.d/99-tcp-udp-optimization.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # General system limits
+      fs.file-max = 1000000
+      net.ipv4.ip_forward = 1
+
+      # TCP protection and security
+      net.ipv4.tcp_syncookies = 1
+      net.ipv4.tcp_synack_retries = 2
+
+      # TCP performance tuning
+      net.ipv4.tcp_max_syn_backlog = 324000
+      net.core.somaxconn = 4096
+      net.ipv4.tcp_max_tw_buckets = 6000
+      net.ipv4.tcp_tw_reuse = 1
+      net.ipv4.tcp_max_orphans = 262144
+      net.ipv4.ip_local_port_range = 1024 65535
+      net.ipv4.tcp_wmem = 4096 65536 26214400
+      net.ipv4.tcp_rmem = 4096 87380 26214400
+
+      # UDP tuning
+      net.core.rmem_default = 262144
+      net.core.wmem_default = 262144
+      net.core.rmem_max = 26214400
+      net.core.wmem_max = 26214400
+      net.ipv4.udp_rmem_min = 8192
+
+      # Network packet queue tuning
+      net.core.netdev_max_backlog = 60000
+      net.core.netdev_budget = 60000
+
+- name: Reload sysctl
+  command: sysctl --system
+
+- name: Write iptables NAT rules
+  copy:
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      *nat
+      :PREROUTING ACCEPT [0:0]
+      :OUTPUT ACCEPT [0:0]
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -o eno1 -j MASQUERADE
+      COMMIT
+
+- name: Enable and start iptables on boot (systemd)
+  systemd:
+    name: netfilter-persistent
+    enabled: yes
+
+- name: Configure loopback interfaces for services
+  copy:
+    dest: /etc/network/interfaces.d/loopbacks
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # Device ID
+      auto lo:1
+      iface lo:1 inet static
+        address 192.168.0.1
+        netmask 255.255.255.255
+
+      # Traefik
+      auto lo:2
+      iface lo:2 inet static
+        address 192.168.0.2
+        netmask 255.255.255.255
+
+      # Netdata
+      auto lo:3
+      iface lo:3 inet static
+        address 192.168.0.3
+        netmask 255.255.255.255
+
+- name: Configure tap interfaces for GNS3
+  copy:
+    dest: /etc/network/interfaces.d/tap_interfaces
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # Tap interfaces for connecting to the LAB network in GNS3
+      auto tap1
+      iface tap1 inet static
+        pre-up ip tuntap add dev tap0 mode tap
+        address 172.31.1.1
+        netmask 255.255.255.252
+
+      # Tap interfaces for connecting to the LAB network in GNS3
+      auto tap2
+      iface tap2 inet static
+        pre-up ip tuntap add dev tap2 mode tap
+        address 172.31.2.1
+        netmask 255.255.255.252
+
+      # Tap interfaces for connecting to the LAB network in GNS3
+      auto tap3
+      iface tap3 inet static
+        pre-up ip tuntap add dev tap3 mode tap
+        address 172.31.3.1
+        netmask 255.255.255.252
+
+      # Tap interfaces for connecting to the LAB network in GNS3
+      auto tap4
+      iface tap4 inet static
+        pre-up ip tuntap add dev tap4 mode tap
+        address 172.31.4.1
+        netmask 255.255.255.252
+
+      # Tap interfaces for connecting to the LAB network in GNS3
+      auto tap5
+      iface tap5 inet static
+        pre-up ip tuntap add dev tap5 mode tap
+        address 172.31.5.1
+        netmask 255.255.255.252
+
+- name: Install FRR (Routing Protocol Suite)
+  apt:
+    name:
+    - frr
+    state: present
+    update_cache: true
+
+- name: Enable BGP
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^{{ item.key }}='
+    line: '{{ item.key }}=yes'
+  loop:
+  - { key: "bgpd" }
+
+- name: Configure FRR
+  copy:
+    dest: /etc/frr/frr.conf
+    owner: frr
+    group: frr
+    mode: '0640'
+    content: |
+      frr version 8.4.4
+      frr defaults traditional
+      log file /var/log/frr/frr.log
+      log syslog informational
+      log timestamp precision 3
+      no ipv6 forwarding
+      !
+      router bgp 65000
+       bgp router-id 10.33.0.1
+       neighbor LAB-ROUTER remote-as 65100
+       neighbor LAB-ROUTER description to-LAB
+       neighbor 172.31.1.2 peer-group LAB-ROUTER
+       neighbor 172.31.1.2 update-source tap1
+       neighbor 172.31.2.2 peer-group LAB-ROUTER
+       neighbor 172.31.2.2 update-source tap2
+       neighbor 172.31.3.2 peer-group LAB-ROUTER
+       neighbor 172.31.3.2 update-source tap3
+       neighbor 172.31.4.2 peer-group LAB-ROUTER
+       neighbor 172.31.4.2 update-source tap4
+       neighbor 172.31.5.2 peer-group LAB-ROUTER
+       neighbor 172.31.5.2 update-source tap5
+       !
+       address-family ipv4 unicast
+        network 0.0.0.0/0
+        neighbor 172.31.1.2 default-originate
+        neighbor 172.31.2.2 default-originate
+        neighbor 172.31.3.2 default-originate
+        neighbor 172.31.4.2 default-originate
+        neighbor 172.31.5.2 default-originate
+       exit-address-family
+      exit
+      !
+
+- name: Configure vtysh
+  copy:
+    dest: /etc/frr/vtysh.conf
+    owner: frr
+    group: frr
+    mode: '0640'
+    content: |
+      service integrated-vtysh-config
+      hostname snoopy-vtysh
+      log file /var/log/frr/vtysh.log debug
+
+- name: Ensure FRR is restarted and enabled
+  systemd:
+    name: frr
+    state: restarted
+    enabled: yes

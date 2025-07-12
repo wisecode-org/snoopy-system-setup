@@ -1,0 +1,16 @@
+- name: Snoopy server setup for lab and testing
+  hosts: all
+  become: true
+  become_method: sudo
+  become_user: root
+
+  roles:
+  - base
+  - networking
+  - github-runner
+  #- docker
+  #- qemu
+  #- gns3
+  #- certbot
+  #- traefik
+  #- netdata

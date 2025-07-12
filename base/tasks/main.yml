@@ -1,0 +1,153 @@
+---
+# tasks file for base
+
+- name: Set system hostname
+  hostname:
+    name: "snoopy"
+
+- name: Set timezone to UTC
+  timezone:
+    name: "America/New_York"
+
+- name: Set global bash aliases and colored ls
+  copy:
+    dest: /etc/profile.d/99-aliases.sh
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      export LS_OPTIONS='--color=auto'
+      eval "$(dircolors)"
+
+      alias ls='ls $LS_OPTIONS'
+      alias ll='ls $LS_OPTIONS -l'
+      alias l='ls $LS_OPTIONS -lA'
+
+      alias rm='rm -i'
+      alias cp='cp -i'
+
+- name: Set custom MOTD
+  copy:
+    dest: /etc/motd
+    content: |
+      ┌─────────────────────────────────────────────┐
+      │        Welcome to the Snoopy Server!        │
+      └─────────────────────────────────────────────┘
+
+      This is the playground of chaos.
+
+      Unauthorized access will result in
+      you being laughed at by sysadmins.
+
+      Remember: 
+      “rm -rf /” only makes friends cry.
+
+      Have fun, don’t break too much.
+      Hack responsibly.
+
+      ──────────────────────────────────────────────
+
+- name: Install base packages
+  apt:
+    name:
+    - build-essential
+    - libtool
+    - autoconf
+    - automake
+    - liblzo2-dev
+    - libpam0g-dev
+    - libpkcs11-helper1-dev
+    - libnl-genl-3-dev
+    - libcap-ng-dev
+    - liblz4-dev
+    - libsystemd-dev
+    - libcmocka-dev
+    - libldap-dev
+    - rsyslog
+    - qrencode
+    - gobjc-12
+    - flex
+    - bison
+    - doxygen
+    - man-db
+    - curl
+    - wget
+    - vim
+    - net-tools
+    - lsof
+    - unzip
+    - 7zip
+    - unrar
+    - tree
+    - gnupg
+    - ca-certificates
+    - software-properties-common
+    - jq
+    - bash-completion
+    - htop
+    - dnsutils
+    - iputils-ping
+    - tcpdump
+    - tshark
+    - iproute2
+    - iptables-persistent
+    - nfs-common
+    - git
+    - ca-certificates
+    - binutils
+    - pkg-config
+    - libssl-dev
+    - gettext
+    - pamtester
+    - jq
+    - re2c
+    - bridge-utils
+    - screen
+    - tmux
+    state: present
+    update_cache: true
+
+- name: Create logrotate rule for syslog
+  copy:
+    dest: /etc/logrotate.d/syslog
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      /var/log/syslog {
+          size 500M
+          rotate 1
+          compress
+          delaycompress
+          copytruncate
+          missingok
+          notifempty
+      }
+
+- name: Create logrotate rule for auth.log
+  copy:
+    dest: /etc/logrotate.d/auth
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      /var/log/auth.log {
+          size 500M
+          rotate 1
+          compress
+          delaycompress
+          copytruncate
+          missingok
+          notifempty
+      }
+
+- name: Configure SSH daemon securely
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+  - { regexp: '^#?Banner', line: 'Banner no' }
+  - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+  - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
