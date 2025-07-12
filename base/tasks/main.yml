@@ -155,7 +155,7 @@
     line: "{{ item.line }}"
     state: present
   loop:
-  - { regexp: '^#?ListenAddress', line: 'ListenAddress 192.168.0.1' }
+  - { regexp: '^#?ListenAddress', line: 'ListenAddress 192.168.1.254' }
   - { regexp: '^#?Banner', line: 'Banner no' }
   - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
   - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }

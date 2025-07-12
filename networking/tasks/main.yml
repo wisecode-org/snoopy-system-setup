@@ -147,6 +147,13 @@
   loop:
   - { key: "bgpd" }
 
+- name: Set bgpd_options in FRR daemons file
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^bgpd_options='
+    line: 'bgpd_options="   -A 127.0.0.1 -l 172.31.1.1 -l 172.31.2.1 -l 172.31.3.1 -l 172.31.4.1 -l 172.31.5.1"'
+    state: present
+
 - name: Configure FRR
   copy:
     dest: /etc/frr/frr.conf
