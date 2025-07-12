@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  system-setup:
+  snoopy-system-setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,4 +25,4 @@ jobs:
           chmod 600 /tmp/ssh_private_key_file
   
       - name: Run Ansible playbook
-        run: ansible-playbook main.yml
+        run: ansible-playbook main.yml -vvv
