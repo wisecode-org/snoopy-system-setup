@@ -1,5 +1,4 @@
 name: snoopy server system setup
-
 on:
   push:
     branches: [ main ]
@@ -18,15 +17,11 @@ jobs:
           sudo apt-get install -y software-properties-common
           sudo apt-add-repository --yes --update ppa:ansible/ansible
           sudo apt-get install -y ansible
-
-      - name: Write private SSH key
-        run: |
-          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" > /tmp/ssh_private_key_file
-          chmod 600 /tmp/ssh_private_key_file
   
       - name: Run Ansible playbook
         run: |
+          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" > /tmp/ssh_private_key_file \
+          chmod 600 /tmp/ssh_private_key_file  \
           ansible-playbook main.yml \
           -vvv \
           -e github_runner_token="${{ secrets.SNOOPY_GITHUB_RUNNER_TOKEN }}"
-
