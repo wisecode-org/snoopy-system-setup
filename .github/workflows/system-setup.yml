@@ -4,11 +4,8 @@ on:
   push:
     branches: [ main ]
 
-env:
-  ANSIBLE_VERBOSITY: -vvv
-  
 jobs:
-  base-package:
+  system-setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,4 +25,4 @@ jobs:
           chmod 600 /tmp/ssh_private_key_file
   
       - name: Run Ansible playbook
-        run: ansible-playbook $ANSIBLE_VERBOSITY main.yml
+        run: ansible-playbook main.yml
