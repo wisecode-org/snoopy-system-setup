@@ -35,7 +35,7 @@
   become_user: github-runner
   args:
     chdir: /opt/github-runner
-  shell: ./config.sh remove --unattended || true
+  shell: ./config.sh remove || true
 
 - name: Configure github runner
   become: true
