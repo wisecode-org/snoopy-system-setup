@@ -77,6 +77,7 @@
     - lsof
     - unzip
     - 7zip
+    - ssl-cert
     - unrar
     - tree
     - gnupg

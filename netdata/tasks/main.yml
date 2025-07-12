@@ -39,28 +39,18 @@
     name: netdata
     state: present
 
-- name: Generate Netdata configuration file
-  args:
-    creates: /etc/netdata/netdata.conf
-  register: netdata_config
-  shell: |
-    netdatacli dumpconfig > /etc/netdata/netdata.conf
+- name: Deploy Netdata configuration file
+  ansible.builtin.copy:
+    dest: "/etc/netdata/netdata.conf"
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [web]
+              bind to = 127.0.0.1
 
-- name: Set Netdata to listen only on localhost
-  lineinfile:
-    path: /etc/netdata/netdata.conf
-    regexp: '^(\s*)#?\s*bind to\s*='
-    line: '        bind to = 127.0.0.1'
-    insertafter: '^\[web\]'
-    state: present
-
-- name: Ensure StatsD is bound to localhost only
-  lineinfile:
-    path: /etc/netdata/netdata.conf
-    regexp: '^(\s*)#?\s*bind to\s*='
-    line: '        bind to = udp:localhost tcp:localhost'
-    insertafter: '^\[statsd\]'
-    state: present
+      [statsd]
+              bind to = udp:localhost tcp:localhost
 
 - name: Ensure netdata service is enabled and running
   systemd:
