@@ -1,13 +1,21 @@
 ---
 # tasks file for github-runner
 
-- name: wget github runner
+- name: Get github runner binary app
   get_url:
     url: "https://github.com/actions/runner/releases/download/v2.326.0/actions-runner-linux-x64-2.326.0.tar.gz"
     dest: /tmp/actions-runner-linux-x64-2.326.0.tar.gz
     mode: '0644'
 
-- name: Extract github runner
+- name: Ensure github runner destination directory exists
+  file:
+    owner: github-runner
+    group: github-runner
+    mode: '0755'
+    path: /opt/github-runner
+    state: directory
+
+- name: Extract github runner binary app
   unarchive:
     src: /tmp/actions-runner-linux-x64-2.326.0.tar.gz
     dest: /opt/github-runner
@@ -30,12 +38,10 @@
     content: |
       github-runner ALL=(ALL) NOPASSWD:ALL
 
-- name: Remove existing runner configuration
-  become: true
-  become_user: github-runner
-  args:
-    chdir: /opt/github-runner
-  shell: ./config.sh remove || true
+- name: Check if GitHub runner is already configured
+  stat:
+    path: /opt/github-runner/.runner
+  register: runner_config
 
 - name: Configure github runner
   become: true
@@ -50,12 +56,14 @@
       --name snoopy \
       --labels bare-metal \
       --unattended --replace
+  when: not runner_config.stat.exists
 
 - name: Install github runner service
   args:
     chdir: /opt/github-runner
   shell: |
     ./svc.sh install
+  when: not runner_config.stat.exists
 
 - name: Ensure github runner service is running
   systemd:
