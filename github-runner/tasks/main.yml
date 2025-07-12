@@ -52,8 +52,6 @@
       --unattended --replace
 
 - name: Install github runner service
-  become: true
-  become_user: github-runner
   args:
     chdir: /opt/github-runner
   shell: |
