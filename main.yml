@@ -12,5 +12,5 @@
   - qemu
   - gns3
   - certbot
-  #- traefik
+  - traefik
   #- netdata
