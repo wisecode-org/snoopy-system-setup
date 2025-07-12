@@ -54,8 +54,8 @@
     insertafter: '^\[web\]'
     state: present
 
-- name: Ensure StatsD is bound to localhost only in Netdata config
-  alineinfile:
+- name: Ensure StatsD is bound to localhost only
+  lineinfile:
     path: /etc/netdata/netdata.conf
     regexp: '^(\s*)#?\s*bind to\s*='
     line: '        bind to = udp:localhost tcp:localhost'
