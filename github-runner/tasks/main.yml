@@ -30,10 +30,12 @@
     content: |
       github-runner ALL=(ALL) NOPASSWD:ALL
 
-- name: Remove existing runner configuration if present
-  file:
-    path: /opt/github-runner/.runner
-    state: absent
+- name: Remove existing runner configuration
+  become: true
+  become_user: github-runner
+  args:
+    chdir: /opt/github-runner
+  shell: ./config.sh remove --unattended || true
 
 - name: Configure github runner
   become: true
