@@ -26,6 +26,7 @@
   git:
     repo: https://github.com/GNS3/ubridge.git
     dest: /usr/src/ubridge
+    version: v0.9.19
     force: yes
 
 - name: Compile and install ubridge
@@ -41,6 +42,7 @@
   git:
     repo: https://github.com/ndevilla/iniparser.git
     dest: /usr/src/iniparser
+    version: v4.2.6
     force: yes
 
 - name: Compile and install iniparser
@@ -58,6 +60,7 @@
   git:
     repo: https://github.com/GNS3/iouyap.git
     dest: /usr/src/iouyap
+    version: v0.97
     force: yes
 
 - name: Fix struct sizecheck definition from iouyap.h
@@ -85,8 +88,8 @@
     name: gns3
     shell: /bin/bash
     home: /home/gns3
-    create_home: yes
     groups: gns3,libvirt,kvm,wireshark,docker
+    create_home: yes
     append: yes
     state: present
 

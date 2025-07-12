@@ -14,6 +14,12 @@
     dest: /tmp/traefik.tar.gz
     mode: '0644'
 
+- name: Ensure /tmp/traefik directory exists
+  file:
+    path: /tmp/traefik
+    state: directory
+    mode: '0755'
+
 - name: Extract traefik tarball into /tmp
   unarchive:
     src: /tmp/traefik.tar.gz
