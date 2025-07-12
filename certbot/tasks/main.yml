@@ -66,6 +66,10 @@
 
       exit 0
 
+- name: Run ssl-cert permission fix script manually
+  shell: |
+    /etc/letsencrypt/renewal-hooks/deploy/ssl-cert-permission.sh
+
 - name: Run certbot to issue ssl certificate
   shell: |
     certbot certonly \

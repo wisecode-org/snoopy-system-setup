@@ -176,6 +176,27 @@
       [Install]
       WantedBy=multi-user.target
 
+- name: Configure logrotate for Traefik logs
+  copy:
+    dest: /etc/logrotate.d/traefik
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      /var/log/traefik/*.log {
+          daily
+          missingok
+          rotate 4
+          compress
+          delaycompress
+          notifempty
+          create 0640 traefik traefik
+          sharedscripts
+          postrotate
+              kill -HUP $(pidof traefik) >/dev/null 2>&1 || true
+          endscript
+      }
+
 - name: Reload systemd daemon
   command: systemctl daemon-reload
 
