@@ -54,7 +54,7 @@
       -A POSTROUTING -o eno1 -j MASQUERADE
       COMMIT
 
-- name: Enable and start iptables on boot (systemd)
+- name: Ensure iptables rules are loaded at boot with netfilter-persistent
   systemd:
     name: netfilter-persistent
     enabled: yes
@@ -94,7 +94,7 @@
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap1
       iface tap1 inet static
-        pre-up ip tuntap add dev tap0 mode tap
+        pre-up ip tuntap add dev tap1 mode tap
         address 172.31.1.1
         netmask 255.255.255.252
 
@@ -198,3 +198,9 @@
     name: frr
     state: restarted
     enabled: yes
+
+- name: Ensure networking service is restarted
+  systemd:
+    name: networking
+    state: restarted
+    enable: yes
