@@ -50,8 +50,16 @@
   lineinfile:
     path: /etc/netdata/netdata.conf
     regexp: '^#? bind to =.*'
-    line: '  bind to = 127.0.0.1'
+    line: '        bind to = 127.0.0.1'
     insertafter: '^\[web\]'
+    state: present
+
+- name: Ensure StatsD is bound to localhost only in Netdata config
+  alineinfile:
+    path: /etc/netdata/netdata.conf
+    regexp: '^(\s*)#?\s*bind to\s*='
+    line: '        bind to = udp:localhost tcp:localhost'
+    insertafter: '^\[statsd\]'
     state: present
 
 - name: Ensure netdata service is enabled and running
