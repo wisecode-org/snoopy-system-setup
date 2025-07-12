@@ -9,9 +9,6 @@
 
 - name: Ensure github runner destination directory exists
   file:
-    owner: github-runner
-    group: github-runner
-    mode: '0755'
     path: /opt/github-runner
     state: directory
 
@@ -20,14 +17,13 @@
     src: /tmp/actions-runner-linux-x64-2.326.0.tar.gz
     dest: /opt/github-runner
     remote_src: yes
-    mode: '0755'
 
 - name: Ensure github-runner directory ownership
   file:
-    path: /opt/github-runner
-    state: directory
     owner: github-runner
     group: github-runner
+    path: /opt/github-runner
+    state: directory
     recurse: yes
 
 - name: Create github-runner user

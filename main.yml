@@ -8,7 +8,7 @@
   - base
   - networking
   - github-runner
-  #- docker
+  - docker
   #- qemu
   #- gns3
   #- certbot
