@@ -20,8 +20,8 @@ jobs:
   
       - name: Run Ansible playbook
         run: |
-          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" > /tmp/ssh_private_key_file \
-          chmod 600 /tmp/ssh_private_key_file  \
+          echo "${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}" > /tmp/ssh_private_key_file
+          chmod 600 /tmp/ssh_private_key_file
           ansible-playbook main.yml \
           -vvv \
           -e github_runner_token="${{ secrets.SNOOPY_GITHUB_RUNNER_TOKEN }}"
