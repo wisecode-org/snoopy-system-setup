@@ -108,6 +108,12 @@
     state: present
     update_cache: true
 
+- name: Disable and stop rpcbind service
+  service:
+    name: rpcbind
+    enabled: no
+    state: stopped
+
 - name: Create logrotate rule for syslog
   copy:
     dest: /etc/logrotate.d/syslog
@@ -149,6 +155,7 @@
     line: "{{ item.line }}"
     state: present
   loop:
+  - { regexp: '^#?ListenAddress', line: 'ListenAddress 192.168.0.1' }
   - { regexp: '^#?Banner', line: 'Banner no' }
   - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
   - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
