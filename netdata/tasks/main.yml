@@ -49,7 +49,7 @@
 - name: Set Netdata to listen only on localhost
   lineinfile:
     path: /etc/netdata/netdata.conf
-    regexp: '^#? bind to =.*'
+    regexp: '^(\s*)#?\s*bind to\s*='
     line: '        bind to = 127.0.0.1'
     insertafter: '^\[web\]'
     state: present
