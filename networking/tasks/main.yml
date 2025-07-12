@@ -84,6 +84,12 @@
         address 192.168.0.3
         netmask 255.255.255.255
 
+      # GNS3
+      auto lo:4
+      iface lo:4 inet static
+        address 192.168.0.4
+        netmask 255.255.255.255
+
 - name: Configure tap interfaces for GNS3
   copy:
     dest: /etc/network/interfaces.d/tap_interfaces
@@ -94,35 +100,35 @@
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap1
       iface tap1 inet static
-        pre-up ip tuntap add dev tap1 mode tap
+        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap1 mode tap
         address 172.31.1.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap2
       iface tap2 inet static
-        pre-up ip tuntap add dev tap2 mode tap
+        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap2 mode tap
         address 172.31.2.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap3
       iface tap3 inet static
-        pre-up ip tuntap add dev tap3 mode tap
+        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap3 mode tap
         address 172.31.3.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap4
       iface tap4 inet static
-        pre-up ip tuntap add dev tap4 mode tap
+        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap4 mode tap
         address 172.31.4.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap5
       iface tap5 inet static
-        pre-up ip tuntap add dev tap5 mode tap
+        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap5 mode tap
         address 172.31.5.1
         netmask 255.255.255.252
 
