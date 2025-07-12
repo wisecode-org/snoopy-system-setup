@@ -156,7 +156,8 @@
       no ipv6 forwarding
       !
       router bgp 65000
-       bgp router-id 10.33.0.1
+       bgp router-id 192.168.0.1
+       neighbor LAB-ROUTER peer-group
        neighbor LAB-ROUTER remote-as 65100
        neighbor LAB-ROUTER description to-LAB
        neighbor 172.31.1.2 peer-group LAB-ROUTER
