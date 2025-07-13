@@ -34,6 +34,6 @@
 
 - name: Run mega-get for GNS3 images in background
   shell: |
-    sudo -u gns3 bash -c 'nohup mega-get snoopy/GNS3/projects /home/gns3/GNS3/projects >/dev/null 2>&1 &'
+    sudo -u gns3 bash -c 'nohup mega-get snoopy/GNS3/images /home/gns3/GNS3/images >/dev/null 2>&1 &'
   async: 1
   poll: 0
