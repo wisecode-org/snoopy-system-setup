@@ -58,7 +58,7 @@
       --token {{ github_runner_token }} \
       --work /home/github-runner/_work \
       --name snoopy \
-      --labels bare-metal \
+      --labels bare-metal,snoopy \
       --unattended --replace
   when: not runner_config.stat.exists
 
