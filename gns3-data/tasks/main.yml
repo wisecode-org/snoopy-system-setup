@@ -1,0 +1,74 @@
+---
+# tasks file for gns3-data
+
+- name: Download megacmd deb package
+  get_url:
+    url: https://mega.nz/linux/repo/Debian_12/amd64/megacmd-Debian_12_amd64.deb
+    dest: /tmp/megacmd.deb
+    mode: '0644'
+
+- name: Install megacmd
+  apt:
+    deb: /tmp/megacmd.deb
+    state: present
+
+- name: Check if mega session file exists and has size
+  become: true
+  become_user: gns3
+  stat:
+    path: /home/gns3/.megaCmd/session
+  register: mega_session_file
+
+- name: Perform mega login if session file is missing or empty
+  become: true
+  become_user: gns3
+  shell: |
+    mega-login '{{ gns3_megaupload_username }}' '{{ gns3_megaupload_password }}'
+  when: not mega_session_file.stat.exists or mega_session_file.stat.size == 0
+
+- name: Deploy mega-cmd-server systemd unit
+  copy:
+    dest: /etc/systemd/system/mega-cmd-server.service
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Mega CMD Server
+      After=network.target
+
+      [Service]
+      ExecStart=/usr/bin/mega-cmd-server
+      Restart=always
+      User=gns3
+      Group=gns3
+      WorkingDirectory=/home/gns3
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start mega-cmd-server
+  systemd:
+    name: mega-cmd-server
+    enabled: yes
+    state: started
+
+- name: Create Mega sync for GNS3 projects
+  become: true
+  become_user: gns3
+  args:
+    creates: /home/gns3/GNS3/projects
+  shell: |
+    mega-sync snoopy/GNS3/projects /home/gns3/GNS3/projects
+
+- name: Create Mega sync for GNS3 images
+  become: true
+  become_user: gns3
+  args:
+    creates: /home/gns3/GNS3/images
+  shell: |
+    mega-sync snoopy/GNS3/images /home/gns3/GNS3/images

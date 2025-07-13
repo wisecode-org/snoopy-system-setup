@@ -25,4 +25,6 @@ jobs:
           ansible-playbook main.yml \
           -vvv \
           -e github_runner_token="${{ secrets.SNOOPY_GITHUB_RUNNER_TOKEN }}" \
-          -e cloudflare_api_token="${{ secrets.WISECODE_CLOUDFLARE_API_TOKEN }}"
+          -e cloudflare_api_token="${{ secrets.WISECODE_CLOUDFLARE_API_TOKEN }}" \
+          -e gns3_megaupload_username="${{ secrets.GNS3_MEGA_UPLOAD_USERNAME }}" \
+          -e gns3_megaupload_password="${{ secrets.GNS3_MEGA_UPLOAD_PASSWORD }}"
