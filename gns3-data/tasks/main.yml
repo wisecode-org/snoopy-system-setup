@@ -57,18 +57,10 @@
     enabled: yes
     state: started
 
-- name: Create Mega sync for GNS3 projects
-  become: true
-  become_user: gns3
-  args:
-    creates: /home/gns3/GNS3/projects
-  shell: |
-    mega-sync snoopy/GNS3/projects /home/gns3/GNS3/projects
-
 - name: Create Mega sync for GNS3 images
   become: true
   become_user: gns3
   args:
     creates: /home/gns3/GNS3/images
   shell: |
-    mega-sync snoopy/GNS3/images /home/gns3/GNS3/images
+    mega-get snoopy/GNS3/images /home/gns3/GNS3/images
