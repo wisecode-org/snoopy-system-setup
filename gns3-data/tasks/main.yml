@@ -27,17 +27,13 @@
   when: not mega_session_file.stat.exists or mega_session_file.stat.size == 0
 
 - name: Run mega-get for GNS3 projects in background
-  become: true
-  become_user: gns3
-  shell: >
-    nohup mega-get snoopy/GNS3/projects /home/gns3/GNS3/projects > /home/gns3/mega-get-projects.log 2>&1 &
+  shell: |
+    sudo -u gns3 bash -c 'nohup mega-get snoopy/GNS3/projects /home/gns3/GNS3/projects >/dev/null 2>&1 &'
   async: 1
   poll: 0
 
 - name: Run mega-get for GNS3 images in background
-  become: true
-  become_user: gns3
-  shell: >
-    nohup mega-get snoopy/GNS3/images /home/gns3/GNS3/images > /home/gns3/mega-get-images.log 2>&1 &
+  shell: |
+    sudo -u gns3 bash -c 'nohup mega-get snoopy/GNS3/projects /home/gns3/GNS3/projects >/dev/null 2>&1 &'
   async: 1
   poll: 0
