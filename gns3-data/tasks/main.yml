@@ -26,41 +26,18 @@
     mega-login '{{ gns3_megaupload_username }}' '{{ gns3_megaupload_password }}'
   when: not mega_session_file.stat.exists or mega_session_file.stat.size == 0
 
-- name: Deploy mega-cmd-server systemd unit
-  copy:
-    dest: /etc/systemd/system/mega-cmd-server.service
-    owner: root
-    group: root
-    mode: '0644'
-    content: |
-      [Unit]
-      Description=Mega CMD Server
-      After=network.target
-
-      [Service]
-      ExecStart=/usr/bin/mega-cmd-server
-      Restart=always
-      User=gns3
-      Group=gns3
-      WorkingDirectory=/home/gns3
-
-      [Install]
-      WantedBy=multi-user.target
-
-- name: Reload systemd daemon
-  systemd:
-    daemon_reload: yes
-
-- name: Enable and start mega-cmd-server
-  systemd:
-    name: mega-cmd-server
-    enabled: yes
-    state: started
-
-- name: Create Mega sync for GNS3 images
+- name: Run mega-get for GNS3 projects in background
   become: true
   become_user: gns3
-  args:
-    creates: /home/gns3/GNS3/images
-  shell: |
-    mega-get snoopy/GNS3/images /home/gns3/GNS3/images
+  shell: >
+    nohup mega-get snoopy/GNS3/projects /home/gns3/GNS3/projects > /home/gns3/mega-get-projects.log 2>&1 &
+  async: 1
+  poll: 0
+
+- name: Run mega-get for GNS3 images in background
+  become: true
+  become_user: gns3
+  shell: >
+    nohup mega-get snoopy/GNS3/images /home/gns3/GNS3/images > /home/gns3/mega-get-images.log 2>&1 &
+  async: 1
+  poll: 0
