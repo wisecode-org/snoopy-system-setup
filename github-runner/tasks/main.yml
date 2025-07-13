@@ -1,6 +1,13 @@
 ---
 # tasks file for github-runner
 
+- name: Create github-runner user
+  user:
+    name: github-runner
+    shell: /bin/bash
+    home: /home/github-runner
+    create_home: yes
+
 - name: Get github runner binary app
   get_url:
     url: "https://github.com/actions/runner/releases/download/v2.326.0/actions-runner-linux-x64-2.326.0.tar.gz"
@@ -25,13 +32,6 @@
     path: /opt/github-runner
     state: directory
     recurse: yes
-
-- name: Create github-runner user
-  user:
-    name: github-runner
-    shell: /bin/bash
-    home: /home/github-runner
-    create_home: yes
 
 - name: Allow github-runner passwordless sudo
   copy:
