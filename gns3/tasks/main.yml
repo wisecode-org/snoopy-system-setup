@@ -98,6 +98,11 @@
     executable: pip3
     extra_args: --break-system-packages
 
+- name: Ensure gns3 group exists
+  group:
+    name: gns3
+    state: present
+
 - name: Ensure gns3 user exists and is in required groups
   user:
     name: gns3
