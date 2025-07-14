@@ -74,16 +74,17 @@
 
       exit 0
 
-- name: Run ssl-cert permission fix script manually
-  shell: |
-    /etc/letsencrypt/renewal-hooks/deploy/ssl-cert-permission.sh
-
 - name: Run certbot to issue ssl certificate
   shell: |
     certbot certonly \
       --agree-tos \
+      --email melvinr@wisecode.org \
       --key-type rsa \
       --dns-cloudflare \
       --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
       -d wisecode.org,*.wisecode.org,*.snoopy.wisecode.org \
       -n
+
+- name: Run ssl-cert permission fix script manually
+  shell: |
+    /etc/letsencrypt/renewal-hooks/deploy/ssl-cert-permission.sh

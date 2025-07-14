@@ -59,7 +59,36 @@
     name: netfilter-persistent
     enabled: yes
 
-- name: Configure loopback interfaces for services
+- name: Bring up loopback interfaces
+  shell: |
+    ip addr add 192.168.0.1/32 dev lo label lo:1
+    ip addr add 192.168.0.2/32 dev lo label lo:2
+    ip addr add 192.168.0.3/32 dev lo label lo:3
+    ip addr add 192.168.0.4/32 dev lo label lo:4
+
+- name: Create and bring up GNS3 tap interfaces
+  shell: |
+    [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap1 mode tap
+    ip addr add 172.31.1.1/30 dev tap1 || true
+    ip link set tap1 up
+
+    [ -e /sys/class/net/tap2 ] || ip tuntap add dev tap2 mode tap
+    ip addr add 172.31.2.1/30 dev tap2 || true
+    ip link set tap2 up
+
+    [ -e /sys/class/net/tap3 ] || ip tuntap add dev tap3 mode tap
+    ip addr add 172.31.3.1/30 dev tap3 || true
+    ip link set tap3 up
+
+    [ -e /sys/class/net/tap4 ] || ip tuntap add dev tap4 mode tap
+    ip addr add 172.31.4.1/30 dev tap4 || true
+    ip link set tap4 up
+
+    [ -e /sys/class/net/tap5 ] || ip tuntap add dev tap5 mode tap
+    ip addr add 172.31.5.1/30 dev tap5 || true
+    ip link set tap5 up
+
+- name: Configure loopback interfaces for services in config file
   copy:
     dest: /etc/network/interfaces.d/loopbacks
     owner: root
@@ -90,7 +119,7 @@
         address 192.168.0.4
         netmask 255.255.255.255
 
-- name: Configure tap interfaces for GNS3
+- name: Configure tap interfaces for GNS3 in config file
   copy:
     dest: /etc/network/interfaces.d/tap_interfaces
     owner: root
