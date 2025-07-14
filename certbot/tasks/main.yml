@@ -81,6 +81,7 @@
       --email melvinr@wisecode.org \
       --key-type rsa \
       --dns-cloudflare \
+      --dns-cloudflare-propagation-seconds 60 \
       --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
       -d wisecode.org,*.wisecode.org,*.snoopy.wisecode.org \
       -n
