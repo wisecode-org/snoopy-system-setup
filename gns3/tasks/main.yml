@@ -103,7 +103,7 @@
     name: gns3
     shell: /bin/bash
     home: /home/gns3
-    groups: gns3,libvirt,kvm,wireshark,docker
+    groups: gns3,libvirt,kvm,docker
     create_home: yes
     append: yes
     state: present
