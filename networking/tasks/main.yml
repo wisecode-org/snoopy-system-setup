@@ -136,28 +136,28 @@
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap2
       iface tap2 inet static
-        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap2 mode tap
+        pre-up [ -e /sys/class/net/tap2 ] || ip tuntap add dev tap2 mode tap
         address 172.31.2.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap3
       iface tap3 inet static
-        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap3 mode tap
+        pre-up [ -e /sys/class/net/tap3 ] || ip tuntap add dev tap3 mode tap
         address 172.31.3.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap4
       iface tap4 inet static
-        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap4 mode tap
+        pre-up [ -e /sys/class/net/tap4 ] || ip tuntap add dev tap4 mode tap
         address 172.31.4.1
         netmask 255.255.255.252
 
       # Tap interfaces for connecting to the LAB network in GNS3
       auto tap5
       iface tap5 inet static
-        pre-up [ -e /sys/class/net/tap1 ] || ip tuntap add dev tap5 mode tap
+        pre-up [ -e /sys/class/net/tap5 ] || ip tuntap add dev tap5 mode tap
         address 172.31.5.1
         netmask 255.255.255.252
 
