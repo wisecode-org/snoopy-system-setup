@@ -10,6 +10,7 @@
     - virt-manager
     - bridge-utils
     - cpu-checker
+    - libvirt-wireshark
     state: present
     update_cache: true
 
@@ -18,6 +19,24 @@
     name: libvirtd
     enabled: yes
     state: started
+
+- name: Enable and start virtlogd service
+  systemd:
+    name: virtlogd
+    enabled: yes
+    state: started
+
+- name: Ensure default libvirt network is started
+  command: virsh net-start default
+  register: default_net_start
+  failed_when: default_net_start.rc != 0 and '"already active"' not in default_net_start.stderr
+  changed_when: '"already active"' not in default_net_start.stderr
+
+- name: Ensure default libvirt network is set to autostart
+  command: virsh net-autostart default
+  register: default_net_autostart
+  failed_when: default_net_autostart.rc != 0 and '"already set"' not in default_net_autostart.stderr
+  changed_when: '"already set"' not in default_net_autostart.stderr
 
 - name: Add ansible user to libvirt group
   user:
