@@ -61,10 +61,10 @@
 
 - name: Bring up loopback interfaces
   shell: |
-    ip addr add 192.168.0.1/32 dev lo label lo:1
-    ip addr add 192.168.0.2/32 dev lo label lo:2
-    ip addr add 192.168.0.3/32 dev lo label lo:3
-    ip addr add 192.168.0.4/32 dev lo label lo:4
+    ip addr add 192.168.0.1/32 dev lo label lo:1 || true
+    ip addr add 192.168.0.2/32 dev lo label lo:2 || true
+    ip addr add 192.168.0.3/32 dev lo label lo:3 || true
+    ip addr add 192.168.0.4/32 dev lo label lo:4 || true
 
 - name: Create and bring up GNS3 tap interfaces
   shell: |
