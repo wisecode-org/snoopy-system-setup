@@ -64,6 +64,7 @@
     - libcmocka-dev
     - libldap-dev
     - libpcap-dev
+    - cmake
     - rsyslog
     - qrencode
     - gobjc-12
