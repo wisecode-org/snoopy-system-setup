@@ -14,11 +14,13 @@
     version: v0.6.1
     force: yes
 
-- name: Fix vpc symbol redefinition
-  ansible.builtin.replace:
-    path: /usr/src/vpcs/src/vpcs.h
-    regexp: '^pcs vpc'
-    replace: 'extern pcs vpc'
+- name: Fix VPCS source code for build compatibility
+  args:
+    chdir: /usr/src/vpcs/src
+  shell: |
+    sed -i 's|^int getopt.*|int getopt(int argc, char *const *argv, const char *optstr);|' getopt.h
+    sed -i 's/^pcs vpc/extern pcs vpc/' vpcs.h
+    sed -i '/#include "vpcs.h"/a pcs vpc[MAX_NUM_PTHS];' vpcs.c
 
 - name: Compile and install vpcs
   args:
