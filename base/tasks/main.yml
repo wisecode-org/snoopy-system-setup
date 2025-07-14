@@ -119,40 +119,6 @@
     enabled: no
     state: stopped
 
-- name: Create logrotate rule for syslog
-  copy:
-    dest: /etc/logrotate.d/syslog
-    owner: root
-    group: root
-    mode: '0644'
-    content: |
-      /var/log/syslog {
-          size 500M
-          rotate 1
-          compress
-          delaycompress
-          copytruncate
-          missingok
-          notifempty
-      }
-
-- name: Create logrotate rule for auth.log
-  copy:
-    dest: /etc/logrotate.d/auth
-    owner: root
-    group: root
-    mode: '0644'
-    content: |
-      /var/log/auth.log {
-          size 500M
-          rotate 1
-          compress
-          delaycompress
-          copytruncate
-          missingok
-          notifempty
-      }
-
 - name: Configure SSH daemon securely
   lineinfile:
     path: /etc/ssh/sshd_config
