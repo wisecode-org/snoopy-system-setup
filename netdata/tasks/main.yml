@@ -1,34 +1,16 @@
 ---
 # tasks file for netdata
 
-- name: Download Netdata GPG key
+- name: Download Netdata edge repo .deb package
   get_url:
-    url: https://repository.netdata.cloud/netdatabot.gpg.key
-    dest: /usr/share/keyrings/netdata-archive-keyring.gpg
+    url: "https://repo.netdata.cloud/repos/repoconfig/debian/bookworm/netdata-repo-edge_5-1%2Bdebian12_all.deb"
+    dest: "/tmp/netdata-repo-edge.deb"
     mode: '0644'
 
-- name: Add Netdata APT repository
-  copy:
-    dest: /etc/apt/sources.list.d/netdata-edge.sources
-    owner: root
-    group: root
-    mode: '0644'
-    content: |
-      X-Repolib-Name: Netdata edge repository
-      Types: deb
-      URIs: http://repository.netdata.cloud/repos/edge/debian/
-      Suites: bookworm/
-      Signed-By: /usr/share/keyrings/netdata-archive-keyring.gpg
-      By-Hash: Yes
-      Enabled: Yes
-
-      X-Repolib-Name: Netdata repository configuration repository
-      Types: deb
-      URIs: http://repository.netdata.cloud/repos/repoconfig/debian/
-      Suites: bookworm/
-      Signed-By: /usr/share/keyrings/netdata-archive-keyring.gpg
-      By-Hash: Yes
-      Enabled: Yes
+- name: Install Netdata edge repo .deb package
+  apt:
+    deb: "/tmp/netdata-repo-edge.deb"
+    state: present
 
 - name: Update apt cache
   apt:

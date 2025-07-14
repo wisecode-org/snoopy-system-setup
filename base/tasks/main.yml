@@ -65,6 +65,7 @@
     - libldap-dev
     - libpcap-dev
     - cmake
+    - debian-keyring
     - rsyslog
     - qrencode
     - gobjc-12
