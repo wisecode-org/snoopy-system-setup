@@ -64,6 +64,7 @@
     - libcmocka-dev
     - libldap-dev
     - libpcap-dev
+    - busybox-static
     - cmake
     - debian-keyring
     - rsyslog
