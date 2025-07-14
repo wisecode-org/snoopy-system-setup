@@ -63,6 +63,7 @@
     - libsystemd-dev
     - libcmocka-dev
     - libldap-dev
+    - libpcap-dev
     - rsyslog
     - qrencode
     - gobjc-12
