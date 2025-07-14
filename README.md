@@ -1,6 +1,8 @@
 # Snoopy Server System Setup
 
-This repository contains the automated system configuration for the **Snoopy server**, designed for **lab and testing purposes**. It uses **Ansible** to provision the entire server stack: networking, monitoring, containerization, GNS3 lab environment, and more — all in a **consistent and reproducible** way.
+This repository contains the automated system configuration for the **Snoopy server**, designed for **lab and testing purposes**. 
+
+It uses **Ansible** to provision the entire server stack: networking, monitoring, containerization, GNS3 lab environment, and more, all in a **consistent and reproducible** way.
 
 ## Purpose
 
