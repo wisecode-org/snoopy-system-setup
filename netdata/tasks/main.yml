@@ -22,7 +22,7 @@
     state: present
 
 - name: Deploy Netdata configuration file
-  ansible.builtin.copy:
+  copy:
     dest: "/etc/netdata/netdata.conf"
     owner: root
     group: root
