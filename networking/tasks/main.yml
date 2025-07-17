@@ -197,6 +197,8 @@
       log timestamp precision 3
       no ipv6 forwarding
       !
+      ip prefix-list PERMIT-ANY seq 5 permit any
+      !
       router bgp 65000
        bgp router-id 192.168.0.1
        neighbor LAB-ROUTER peer-group
@@ -215,11 +217,9 @@
        !
        address-family ipv4 unicast
         network 0.0.0.0/0
-        neighbor 172.31.1.2 default-originate
-        neighbor 172.31.2.2 default-originate
-        neighbor 172.31.3.2 default-originate
-        neighbor 172.31.4.2 default-originate
-        neighbor 172.31.5.2 default-originate
+        neighbor LAB-ROUTER default-originate
+        neighbor LAB-ROUTER prefix-list PERMIT-ANY in
+        neighbor LAB-ROUTER prefix-list PERMIT-ANY out
        exit-address-family
       exit
       !
