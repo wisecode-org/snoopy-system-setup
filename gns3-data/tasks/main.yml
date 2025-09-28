@@ -3,7 +3,7 @@
 
 - name: Download megacmd deb package
   get_url:
-    url: https://mega.nz/linux/repo/Debian_12/amd64/megacmd-Debian_12_amd64.deb
+    url: https://mega.nz/linux/repo/Debian_13/amd64/megasync_5.15.0-1.1_amd64.deb
     dest: /tmp/megacmd.deb
     mode: '0644'
 

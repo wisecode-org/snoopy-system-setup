@@ -3,7 +3,7 @@
 
 - name: Download Netdata edge repo .deb package
   get_url:
-    url: "https://repo.netdata.cloud/repos/repoconfig/debian/bookworm/netdata-repo-edge_5-1%2Bdebian12_all.deb"
+    url: "https://repo.netdata.cloud/repos/repoconfig/debian/trixie/netdata-repo-edge_5-1%2Bdebian13_all.deb"
     dest: "/tmp/netdata-repo-edge.deb"
     mode: '0644'
 

@@ -16,7 +16,7 @@
 
 - name: Download traefik binary
   get_url:
-    url: https://github.com/traefik/traefik/releases/download/v3.4.4/traefik_v3.4.4_linux_amd64.tar.gz
+    url: https://github.com/traefik/traefik/releases/download/v3.5.3/traefik_v3.5.3_linux_amd64.tar.gz
     dest: /tmp/traefik.tar.gz
     mode: '0644'
 

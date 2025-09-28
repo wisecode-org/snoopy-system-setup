@@ -1,17 +1,29 @@
 ---
 # tasks file for networking
 
+- name: Add FRRouting APT key
+  args:
+    creates: /usr/share/keyrings/frrouting.gpg
+  shell: |
+    curl -s https://deb.frrouting.org/frr/keys.gpg | tee /usr/share/keyrings/frrouting.gpg > /dev/null
+
+- name: Add FRRouting APT repository
+  args:
+    creates: /etc/apt/sources.list.d/frr.list
+  shell: |
+    echo "deb [signed-by=/usr/share/keyrings/frrouting.gpg] https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable" | tee /etc/apt/sources.list.d/frr.list
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
 - name: Persist sysctl settings
   copy:
-    dest: /etc/sysctl.d/99-tcp-udp-optimization.conf
+    dest: /etc/sysctl.d/99-network-optimization.conf
     owner: root
     group: root
     mode: '0644'
     content: |
-      # General system limits
-      fs.file-max = 1000000
-      net.ipv4.ip_forward = 1
-
       # TCP protection and security
       net.ipv4.tcp_syncookies = 1
       net.ipv4.tcp_synack_retries = 2
@@ -37,6 +49,38 @@
       net.core.netdev_max_backlog = 60000
       net.core.netdev_budget = 60000
 
+      #Enable forwarding and bridge traffic
+      net.ipv4.ip_forward = 1
+      net.bridge.bridge-nf-call-iptables = 1
+      net.bridge.bridge-nf-call-ip6tables = 0
+
+      # Reverse path filtering
+      net.ipv4.conf.all.rp_filter = 2
+      net.ipv4.conf.default.rp_filter = 2
+
+      # Connection tracking and TCP tuning
+      net.netfilter.nf_conntrack_max = 524288
+      net.ipv4.tcp_tw_reuse = 1
+      net.ipv4.tcp_fin_timeout = 10
+
+      # File descriptors and backlog
+      fs.file-max = 2097152
+      net.core.somaxconn = 32768
+      net.ipv4.tcp_max_syn_backlog = 32768
+
+      # eBPF optimizations
+      kernel.unprivileged_bpf_disabled = 1
+      net.core.bpf_jit_enable = 1
+      net.core.bpf_jit_harden = 2
+
+      # ARP table thresholds
+      net.ipv4.neigh.default.gc_thresh1 = 4096
+      net.ipv4.neigh.default.gc_thresh2 = 8192
+      net.ipv4.neigh.default.gc_thresh3 = 16384
+
+      # Enable per-flow (hash-based) load balancing for equal-cost multipath (ECMP) routes
+      net.ipv4.fib_multipath_hash_policy = 1
+
 - name: Reload sysctl
   command: sysctl --system
 
@@ -49,6 +93,8 @@
     content: |
       *nat
       :PREROUTING ACCEPT [0:0]
+      -A PREROUTING -p tcp -d 192.168.1.254 --dport 80 -j DNAT --to-destination 174.166.226.1:80
+      -A PREROUTING -p tcp -d 192.168.1.254 --dport 443 -j DNAT --to-destination 174.166.226.1:443
       :OUTPUT ACCEPT [0:0]
       :POSTROUTING ACCEPT [0:0]
       -A POSTROUTING -o eno1 -j MASQUERADE
