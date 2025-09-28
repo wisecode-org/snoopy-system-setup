@@ -89,7 +89,6 @@
     - tree
     - gnupg
     - ca-certificates
-    - software-properties-common
     - jq
     - bash-completion
     - htop
