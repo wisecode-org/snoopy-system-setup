@@ -58,8 +58,7 @@
     mode: '0755'
 
 - name: Deploy Traefik configuration files
-  become: yes
-  ansible.builtin.copy:
+  copy:
     dest: "/etc/traefik/{{ item.name }}"
     owner: traefik
     group: traefik

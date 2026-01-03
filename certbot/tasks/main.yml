@@ -1,5 +1,5 @@
 ---
-# tasks file for certbot
+ tasks file for certbot
 
 - name: Install certbot and Cloudflare DNS plugin
   apt:
@@ -31,7 +31,7 @@
     group: root
     mode: '0644'
     content: |
-      30 14 * * * certbot certonly --agree-tos --email melvinr@wisecode.org --key-type rsa --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini -d wisecode.org,*.wisecode.org,*.snoopy.wisecode.org -n
+      30 14 * * * root certbot certonly --agree-tos --email melvinr@wisecode.org --key-type rsa --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini -d wisecode.org,*.wisecode.org,*.snoopy.wisecode.org -n
 
 - name: Ensure deploy hooks directory exists
   file:
